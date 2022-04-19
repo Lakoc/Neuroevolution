@@ -53,9 +53,9 @@ class Motif(nn.Module):
 
 
 class FlatModel(nn.Module):
-    def __init__(self, adjacency_matrices, operations, n_classes, input_sample, device, conv_set):
+    def __init__(self, adjacency_matrix, operations, n_classes, input_sample, device, conv_set):
         super(FlatModel, self).__init__()
-        self.motif = Motif(adjacency_matrices[0][0], operations, input_sample, device)
+        self.motif = Motif(adjacency_matrix, operations, input_sample, device)
         self.last_conv = nn.Sequential(
             nn.Conv2d(self.motif.output.shape[1], conv_set['out_channels'], kernel_size=conv_set['kernel_size'],
                       padding=1), nn.BatchNorm2d(conv_set['out_channels']),

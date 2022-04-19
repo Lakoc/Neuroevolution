@@ -1,39 +1,92 @@
+import time
 import torch
-from src.datasets import FashionMNIST, MNIST
 from src.Trainer import Trainer
 from src.Logger import Logger
 from torch import nn
-from src.EvolutionarySearch import FlatSearch
-from src.models import SimpleCNN
+from argparse import ArgumentParser
+import numpy as np
+import src.datasets as datasets
+import src.search as search
+import src.individuals as individuals
 
 if __name__ == "__main__":
-    out_channels = 3
-    kernel_size = 3
-    n_nodes = 5
+    parser = ArgumentParser(
+        description='Neuroevolution alg interface.')
+
+    # Search alg arguments
+    parser.add_argument('--population_size', type=int, default=2,
+                        help='Population size')
+    parser.add_argument('--n_generations', type=int, default=0,
+                        help='Batch size')
+    parser.add_argument('--search_alg', type=str, default='RandomSearch',
+                        help='Search algorithm to be used')
+
+    # Trainer arguments
+    parser.add_argument('--n_epochs', type=int, default=3,
+                        help='Number of train epochs of each individual')
+    parser.add_argument('--dataset', type=str, default='MNIST',
+                        help='Dataset to processes evolution on')
+
+    # Individual arguments
+    parser.add_argument('--architecture', type=str, default='Flat',
+                        help='Architecture of population individual')
+    parser.add_argument('--kernel_size', type=int, default=3,
+                        help='Default convolution kernel size')
+    parser.add_argument('--out_channels', type=int,
+                        default=3,
+                        help='Number of output channels of each convolution block')
+
+    # Flat architecture args
+    parser.add_argument('--init_mutations', type=int,
+                        default=1000,
+                        help='Number of initial mutations')
+    parser.add_argument('--n_nodes', type=str,
+                        default='4',
+                        help='Number of nodes for flat representation')
+
+    # Evolutionary search args
+    parser.add_argument('--selection_pressure', type=float, default=0.05,
+                        help='Selection pressure in the tournament offspring selection')
+
+    args = parser.parse_args()
+
     default_stride = 1
-    default_padding = kernel_size // 2
+    default_padding = args.kernel_size // 2
+
     operations = [None,
                   nn.Identity(),
-                  [(nn.Conv2d, {'out_channels': out_channels, 'kernel_size': 1}), nn.BatchNorm2d(out_channels),
-                   nn.ReLU()],
-                  [(nn.Conv2d, {'out_channels': out_channels, 'kernel_size': 1}), nn.BatchNorm2d(out_channels),
-                   nn.ELU()],
-                  [(nn.Conv2d, {'out_channels': out_channels, 'kernel_size': kernel_size, 'stride': default_stride,
-                                'padding': 'same'}),
-                   nn.BatchNorm2d(out_channels), nn.ReLU()],
-                  [(nn.Conv2d, {'out_channels': out_channels, 'kernel_size': kernel_size, 'stride': default_stride,
-                                'padding': 'same'}),
-                   nn.BatchNorm2d(out_channels), nn.ELU()],
+                  [(nn.Conv2d, {'out_channels': args.out_channels, 'kernel_size': 1}),
+                   nn.BatchNorm2d(args.out_channels), nn.ReLU()],
+                  [(nn.Conv2d, {'out_channels': args.out_channels, 'kernel_size': 1}),
+                   nn.BatchNorm2d(args.out_channels), nn.ELU()],
+                  [(nn.Conv2d,
+                    {'out_channels': args.out_channels, 'kernel_size': args.kernel_size, 'stride': default_stride,
+                     'padding': 'same'}), nn.BatchNorm2d(args.out_channels), nn.ReLU()],
+                  [(nn.Conv2d,
+                    {'out_channels': args.out_channels, 'kernel_size': args.kernel_size, 'stride': default_stride,
+                     'padding': 'same'}), nn.BatchNorm2d(args.out_channels), nn.ELU()],
                   nn.Dropout2d(),
-                  nn.MaxPool2d(kernel_size=kernel_size, padding=default_padding, stride=default_stride),
-                  nn.AvgPool2d(kernel_size=kernel_size, padding=default_padding, stride=default_stride)]
-    flat_representation = [[{'n_nodes': n_nodes}]]
-    dataset = FashionMNIST()
+                  nn.MaxPool2d(kernel_size=args.kernel_size, padding=default_padding, stride=default_stride),
+                  nn.AvgPool2d(kernel_size=args.kernel_size, padding=default_padding, stride=default_stride)]
+
+    dataset = getattr(datasets, args.dataset)()
+    search_alg = getattr(search, args.search_alg)
+    architecture = getattr(individuals, args.architecture)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    trainer = Trainer(dataset, device, optimizer=torch.optim.Adam)
+    trainer = Trainer(dataset, device, optimizer=torch.optim.Adam, epochs=args.n_epochs)
     logger = Logger('results', 'results.txt')
-    flat_search = FlatSearch(per_level_motifs=flat_representation, primitive_operations=operations, init_mutations=1000,
-                             n_generations=100, population_size=5, trainer=trainer, logger=logger,
-                             conv_set={'out_channels': out_channels, 'kernel_size': kernel_size})
-    flat_search.init_population()
-    flat_search.evolve()
+
+    architecture_model = [[int(val) for val in level.split(',')] for level in args.n_nodes.split(';')]
+
+    search = search_alg(architecture_model=architecture_model, primitive_operations=operations,
+                        init_mutations=args.init_mutations, selection_pressure=args.selection_pressure,
+                        n_generations=args.n_generations, population_size=args.population_size, trainer=trainer,
+                        logger=logger, conv_set={'out_channels': args.out_channels, 'kernel_size': args.kernel_size},
+                        architecture=architecture)
+
+    search.init_population()
+    fitness_all, best_individual = search.evolve()
+
+    torch.save(best_individual[2], f"models/{args}_{time.time()}_{best_individual[0]}")
+    np.save(f"fitness/{args}_{time.time()}_{best_individual[0]}", fitness_all)
