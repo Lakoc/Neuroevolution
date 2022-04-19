@@ -1,23 +1,39 @@
-import numpy as np
 import torch
-import torchvision
-import matplotlib.pyplot as plt
-from src.MNIST import MNIST
-from src.Worker import Worker
-from src.Models import Flat
+from src.datasets import FashionMNIST, MNIST
+from src.Trainer import Trainer
 from src.Logger import Logger
+from torch import nn
+from src.EvolutionarySearch import FlatSearch
+from src.models import SimpleCNN
 
-if __name__ == '__main__':
-    dataset = MNIST()
-    logger = Logger('results', 'results.txt')
-
+if __name__ == "__main__":
+    out_channels = 3
+    kernel_size = 3
+    n_nodes = 5
+    default_stride = 1
+    default_padding = kernel_size // 2
+    operations = [None,
+                  nn.Identity(),
+                  [(nn.Conv2d, {'out_channels': out_channels, 'kernel_size': 1}), nn.BatchNorm2d(out_channels),
+                   nn.ReLU()],
+                  [(nn.Conv2d, {'out_channels': out_channels, 'kernel_size': 1}), nn.BatchNorm2d(out_channels),
+                   nn.ELU()],
+                  [(nn.Conv2d, {'out_channels': out_channels, 'kernel_size': kernel_size, 'stride': default_stride,
+                                'padding': 'same'}),
+                   nn.BatchNorm2d(out_channels), nn.ReLU()],
+                  [(nn.Conv2d, {'out_channels': out_channels, 'kernel_size': kernel_size, 'stride': default_stride,
+                                'padding': 'same'}),
+                   nn.BatchNorm2d(out_channels), nn.ELU()],
+                  nn.Dropout2d(),
+                  nn.MaxPool2d(kernel_size=kernel_size, padding=default_padding, stride=default_stride),
+                  nn.AvgPool2d(kernel_size=kernel_size, padding=default_padding, stride=default_stride)]
+    flat_representation = [[{'n_nodes': n_nodes}]]
+    dataset = FashionMNIST()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    genotype = np.array([1, 0, 1])
-    genotype_string = ''.join(str(x) for x in genotype)
-
-    net = Flat(genotype)
-
-    worker = Worker(dataset.train, dataset.eval, device, net)
-    worker.train(logger.train_logs(genotype_string))
-    worker.eval(logger.eval_log(genotype_string))
+    trainer = Trainer(dataset, device, optimizer=torch.optim.Adam)
+    logger = Logger('results', 'results.txt')
+    flat_search = FlatSearch(per_level_motifs=flat_representation, primitive_operations=operations, init_mutations=1000,
+                             n_generations=100, population_size=5, trainer=trainer, logger=logger,
+                             conv_set={'out_channels': out_channels, 'kernel_size': kernel_size})
+    flat_search.init_population()
+    flat_search.evolve()
