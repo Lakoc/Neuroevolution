@@ -14,11 +14,11 @@ if __name__ == "__main__":
         description='Neuroevolution alg interface.')
 
     # Search alg arguments
-    parser.add_argument('--population_size', type=int, default=2,
+    parser.add_argument('--population_size', type=int, default=5,
                         help='Population size')
-    parser.add_argument('--n_generations', type=int, default=0,
+    parser.add_argument('--n_generations', type=int, default=2,
                         help='Batch size')
-    parser.add_argument('--search_alg', type=str, default='RandomSearch',
+    parser.add_argument('--search_alg', type=str, default='EvolutionarySearch',
                         help='Search algorithm to be used')
 
     # Trainer arguments
@@ -28,7 +28,7 @@ if __name__ == "__main__":
                         help='Dataset to processes evolution on')
 
     # Individual arguments
-    parser.add_argument('--architecture', type=str, default='Flat',
+    parser.add_argument('--architecture', type=str, default='Hierarchical',
                         help='Architecture of population individual')
     parser.add_argument('--kernel_size', type=int, default=3,
                         help='Default convolution kernel size')
@@ -41,7 +41,7 @@ if __name__ == "__main__":
                         default=1000,
                         help='Number of initial mutations')
     parser.add_argument('--n_nodes', type=str,
-                        default='4',
+                        default='3,3,3,3,3,3;4,4;3',
                         help='Number of nodes for flat representation')
 
     # Evolutionary search args
@@ -72,7 +72,6 @@ if __name__ == "__main__":
     dataset = getattr(datasets, args.dataset)()
     search_alg = getattr(search, args.search_alg)
     architecture = getattr(individuals, args.architecture)
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     trainer = Trainer(dataset, device, optimizer=torch.optim.Adam, epochs=args.n_epochs)
     logger = Logger('results', 'results.txt')
@@ -82,11 +81,13 @@ if __name__ == "__main__":
     search = search_alg(architecture_model=architecture_model, primitive_operations=operations,
                         init_mutations=args.init_mutations, selection_pressure=args.selection_pressure,
                         n_generations=args.n_generations, population_size=args.population_size, trainer=trainer,
-                        logger=logger, conv_set={'out_channels': args.out_channels, 'kernel_size': args.kernel_size},
-                        architecture=architecture)
+                        logger=logger, conv_set={'out_channels': args.out_channels, 'kernel_size': args.kernel_size,
+                                                 'padding': default_padding}, architecture=architecture)
 
     search.init_population()
-    fitness_all, best_individual = search.evolve()
+    fitness_all, params_count, best_individual = search.evolve()
 
-    torch.save(best_individual[2], f"models/{args}_{time.time()}_{best_individual[0]}")
-    np.save(f"fitness/{args}_{time.time()}_{best_individual[0]}", fitness_all)
+    out_name = str(vars(args)).replace(' ', '').replace("'", "") + f"_{time.time():.2f}_{best_individual[0]:.2f}"
+    torch.save(best_individual[2], f"models/{out_name}")
+    np.save(f"fitness/{out_name}", fitness_all)
+    np.save(f"params/{out_name}", params_count)

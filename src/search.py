@@ -5,7 +5,7 @@ import copy
 
 class Search:
     def __init__(self, population_size, architecture_model, primitive_operations,
-                 conv_set,  trainer, logger, architecture):
+                 conv_set, trainer, logger, architecture):
         self.population_size = population_size
         self.population = [architecture(str(i), architecture_model, primitive_operations, conv_set) for i in
                            range(self.population_size)]
@@ -15,12 +15,15 @@ class Search:
 
     def evaluate_individuals(self, population):
         fitness_all = np.empty(self.population_size)
+        params_all = np.empty(self.population_size)
         for i, individual in enumerate(tqdm(population)):
             fitness, net = individual.evaluate(self.trainer, self.logger)
             fitness_all[i] = fitness
+            model_parameters = filter(lambda p: p.requires_grad, net.parameters())
+            params_all[i] = sum([np.prod(p.size()) for p in model_parameters])
             if fitness >= self.best_individual[0]:
                 self.best_individual = (fitness, individual.genotype, net)
-        return fitness_all
+        return fitness_all, params_all
 
 
 class RandomSearch(Search):
@@ -37,10 +40,10 @@ class RandomSearch(Search):
     def evolve(self):
         print(f"Starting random search with {self.population_size} individuals...")
         print('Evaluation of all individuals...')
-        fitness = self.evaluate_individuals(self.population)
+        fitness, params = self.evaluate_individuals(self.population)
         print(f'Best fitness: {np.max(fitness):.2f}, '
               f'median fitness: {np.median(fitness):.2f}')
-        return fitness, self.best_individual
+        return fitness, params, self.best_individual
 
 
 class EvolutionarySearch(Search):
@@ -68,12 +71,14 @@ class EvolutionarySearch(Search):
             f"Starting evolutionary search of {self.n_generations} generations "
             f"with {self.population_size} individuals in population...")
         print('Evaluation of initial population began.')
-        init_fitness = self.evaluate_individuals(self.population)
+        init_fitness, init_params = self.evaluate_individuals(self.population)
         print(
             f'Best fitness: {np.max(init_fitness):.2f}, '
             f'median fitness: {np.median(init_fitness):.2f}')
         per_generation_fitness = np.empty((self.n_generations + 1, self.population_size))
+        per_generation_params = np.empty_like(per_generation_fitness)
         per_generation_fitness[0, :] = init_fitness
+        per_generation_params[0, :] = init_params
 
         print('Starting evolution ...\n')
         for generation in range(self.n_generations):
@@ -84,13 +89,15 @@ class EvolutionarySearch(Search):
                          for _ in range(self.population_size)]
             for individual in offspring:
                 individual.mutate()
-            per_generation_fitness[generation_curr, :] = self.evaluate_individuals(offspring)
+            fitness, params = self.evaluate_individuals(offspring)
+            per_generation_fitness[generation_curr, :] = fitness
+            per_generation_params[generation_curr, :] = params
 
             print(f'Best fitness overall: {self.best_individual[0]:.2f}, '
                   f'best fitness curr: {np.max(per_generation_fitness[generation_curr, :]):.2f}, '
                   f'median fitness: {np.median(per_generation_fitness[generation_curr, :]):.2f}\n')
 
-            self.population = self.population + offspring  # We do not remove any genotypes from the population,
+            self.population = self.population + offspring  # Do not remove any genotypes from the population,
             # allowing it to grow with time, maintaining architecture diversity.
 
-        return per_generation_fitness, self.best_individual
+        return per_generation_fitness, per_generation_params, self.best_individual
