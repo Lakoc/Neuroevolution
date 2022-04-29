@@ -26,6 +26,7 @@ cp -r "$DATADIR/src" "$SCRATCHDIR" || {
 module add python36-modules-gcc
 cd "$SCRATCHDIR" || exit 1
 pip install ptflops
+pip install torchvision
 
 python main.py
 
