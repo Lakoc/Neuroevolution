@@ -16,6 +16,7 @@ echo "$PBS_JOBID is running on node $(hostname -f) in a scratch directory $SCRAT
 cp -r "$DATADIR/main.py" "$SCRATCHDIR" || {
   echo >&2 "Couldnt copy main."
   exit 3
+}
 
 cp -r "$DATADIR/src" "$SCRATCHDIR" || {
   echo >&2 "Couldnt copy src."
@@ -23,7 +24,7 @@ cp -r "$DATADIR/src" "$SCRATCHDIR" || {
 }
 
 module add python36-modules-gcc
-cd $SCRATCHDIR
+cd "$SCRATCHDIR" || exit 1
 
 python main.py
 
