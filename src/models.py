@@ -123,6 +123,39 @@ class HierarchicalModel(nn.Module):
         return F.log_softmax(x, dim=0)
 
 
+class VariableLengthModel(nn.Module):
+    def __init__(self, architecture, operations, n_classes, batch_shape, device, conv_set):
+        super(VariableLengthModel, self).__init__()
+        input_shape = torch.Tensor(list(batch_shape))
+        flattened_size = None
+        self.layers = []
+        for layer_setting in architecture:
+            if isinstance(layer_setting, list):
+                layer = nn.Sequential(
+                    layer_setting[0][0](in_channels=int(input_shape[-3].item()), **layer_setting[0][1]),
+                    layer_setting[1], layer_setting[2])
+                input_shape[-3] = conv_set['out_channels']
+            elif isinstance(layer_setting, tuple):
+                if flattened_size is None:
+                    flattened_size = int(torch.prod(input_shape[-3:]).item())
+                    layer = nn.Sequential(nn.Flatten(start_dim=1),
+                                          layer_setting[0](in_features=flattened_size, out_features=layer_setting[1]))
+                else:
+                    layer = layer_setting[0](in_features=flattened_size, out_features=layer_setting[1])
+                flattened_size = layer_setting[1]
+            else:
+                layer = layer_setting
+            self.layers.append(layer.to(device))
+
+        self.linear = nn.Linear(flattened_size, n_classes).to(device)
+
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        x = self.linear(x)
+        return F.log_softmax(x, dim=0)
+
+
 class SimpleCNN(nn.Module):
     def __init__(self):
         super(SimpleCNN, self).__init__()
