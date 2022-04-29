@@ -23,10 +23,19 @@ cp -r "$DATADIR/src" "$SCRATCHDIR" || {
   exit 3
 }
 
-module add python36-modules-gcc
+cp -r "$DATADIR/requirements.txt" "$SCRATCHDIR" || {
+  echo >&2 "Couldnt copy requirements."
+  exit 3
+}
+
+module add conda-modules-py37
+conda create -n Neuroevolution python=3.9.7
+conda activate Neuroevolution
+echo "ENV created. $(date +"%T") Installing requirements ..."
+pip install -r "$SCRATCHDIR/requirements.txt"
+echo "All packages installed. $(date +"%T")"
+
 cd "$SCRATCHDIR" || exit 1
-pip install ptflops
-pip install torchvision
 mkdir "$SCRATCHDIR/results"
 mkdir "$SCRATCHDIR/results/best"
 mkdir "$SCRATCHDIR/results/models"
@@ -34,6 +43,7 @@ mkdir "$SCRATCHDIR/results/macs"
 mkdir "$SCRATCHDIR/results/params"
 mkdir "$SCRATCHDIR/results/fitness"
 
+echo "All ready. Starting evolution: $(date +"%T")"
 python main.py
 
 echo "Training done. Copying back to FE: $(date +"%T")"
