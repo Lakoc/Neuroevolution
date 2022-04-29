@@ -6,7 +6,7 @@ class FashionMNIST:
     def __init__(self):
         self.mean = 0.2859
         self.std = 0.3530
-        self.batch_size_train = 64
+        self.batch_size_train = 256
         self.batch_size_test = 1000
         self.n_workers = 6
         self.dataset_path = 'files/'
