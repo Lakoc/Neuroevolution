@@ -27,6 +27,8 @@ if __name__ == "__main__":
                         help='Number of train epochs of each individual')
     parser.add_argument('--dataset', type=str, default='FashionMNIST',
                         help='Dataset to processes evolution on')
+    parser.add_argument('--batch_size', type=int, default=64,
+                        help='Batch size')
 
     # Individual arguments
     parser.add_argument('--architecture', type=str, default='Flat',
@@ -70,7 +72,7 @@ if __name__ == "__main__":
                   nn.MaxPool2d(kernel_size=args.kernel_size, padding=default_padding, stride=default_stride),
                   nn.AvgPool2d(kernel_size=args.kernel_size, padding=default_padding, stride=default_stride)]
 
-    dataset = getattr(datasets, args.dataset)()
+    dataset = getattr(datasets, args.dataset)(args.batch_size)
     search_alg = getattr(search, args.search_alg)
     architecture = getattr(individuals, args.architecture)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

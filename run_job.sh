@@ -44,7 +44,7 @@ mkdir "$SCRATCHDIR/results/params"
 mkdir "$SCRATCHDIR/results/fitness"
 
 echo "All ready. Starting evolution: $(date +"%T")"
-python main.py
+python main.py --batch_size 256
 
 echo "Training done. Copying back to FE: $(date +"%T")"
 # Copy data back to FE
