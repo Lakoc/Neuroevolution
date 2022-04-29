@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -N Neuroevolution
 #PBS -q gpu
-#PBS -l select=1:ngpus=1:gpu_cap=cuda75:mem=8gb:scratch_local=2gb
+#PBS -l select=1:ngpus=1:gpu_cap=cuda75:mem=8gb:scratch_local=1gb
 #PBS -l walltime=1:00:00
 #PBS -m abe
 #PBS -J 1-3
@@ -11,10 +11,11 @@
 trap 'clean_scratch' EXIT
 
 DATADIR=/storage/brno2/home/lakoc/Neuroevolution
-config=$(<$DATADIR/configs/config"${PBS_ARRAYID}".txt)
+config=$(<$DATADIR/configs/config"${PBS_ARRAY_INDEX}".txt)
+
 
 echo "$PBS_JOBID is running on node $(hostname -f) in a scratch directory $SCRATCHDIR: $(date +"%T")"
-
+echo "Config: $config"
 cp -r "$DATADIR/main.py" "$SCRATCHDIR" || {
   echo >&2 "Couldnt copy main."
   exit 3
@@ -50,7 +51,7 @@ python main.py $config
 
 echo "Training done. Copying back to FE: $(date +"%T")"
 # Copy data back to FE
-cp -r "$SCRATCHDIR/results" "$DATADIR/$PBS_ARRAYID" || {
+cp -r "$SCRATCHDIR/results" "$DATADIR/$PBS_ARRAY_INDEX" || {
   echo >&2 "Couldnt copy results to datadir."
   exit 3
 }
