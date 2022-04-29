@@ -27,6 +27,12 @@ module add python36-modules-gcc
 cd "$SCRATCHDIR" || exit 1
 pip install ptflops
 pip install torchvision
+mkdir "$SCRATCHDIR/results"
+mkdir "$SCRATCHDIR/results/best"
+mkdir "$SCRATCHDIR/results/models"
+mkdir "$SCRATCHDIR/results/macs"
+mkdir "$SCRATCHDIR/results/params"
+mkdir "$SCRATCHDIR/results/fitness"
 
 python main.py
 
