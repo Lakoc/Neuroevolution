@@ -8,7 +8,7 @@ class FashionMNIST:
         self.std = 0.3530
         self.batch_size_train = batch_size
         self.batch_size_test = 1000
-        self.n_workers = 6
+        self.n_workers = 1
         self.dataset_path = 'files/'
 
         self.train = torch.utils.data.DataLoader(
@@ -35,7 +35,7 @@ class MNIST:
         self.mnist_std = 0.3081
         self.batch_size_train = batch_size
         self.batch_size_test = 1000
-        self.n_workers = 6
+        self.n_workers = 1
         self.dataset_path = 'files/'
 
         self.train = torch.utils.data.DataLoader(
