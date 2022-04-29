@@ -4,12 +4,14 @@
 #PBS -l select=1:ngpus=1:gpu_cap=cuda75:mem=16gb:scratch_local=10gb
 #PBS -l walltime=1:00:00
 #PBS -m abe
+#PBS -t 1-2
 
-JOB_ID="test"
+
 # Clean up after exit
 trap 'clean_scratch' EXIT
 
 DATADIR=/storage/brno2/home/lakoc/Neuroevolution
+config=$(<$DATADIR/configs/config"${PBS_ARRAYID}".txt)
 
 echo "$PBS_JOBID is running on node $(hostname -f) in a scratch directory $SCRATCHDIR: $(date +"%T")"
 
@@ -44,11 +46,11 @@ mkdir "$SCRATCHDIR/results/params"
 mkdir "$SCRATCHDIR/results/fitness"
 
 echo "All ready. Starting evolution: $(date +"%T")"
-python main.py --batch_size 256
+python main.py $config
 
 echo "Training done. Copying back to FE: $(date +"%T")"
 # Copy data back to FE
-cp -r "$SCRATCHDIR/results" "$DATADIR/$JOB_ID" || {
+cp -r "$SCRATCHDIR/results" "$DATADIR/$PBS_ARRAYID" || {
   echo >&2 "Couldnt copy results to datadir."
   exit 3
 }
