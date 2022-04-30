@@ -1,4 +1,4 @@
-options = [('', ["--population_size 100 --n_generations 30", "--population_size 30 --n_generations 100"]),
+options = [('', ["--population_size 100 --n_generations 5", "--population_size 5 --n_generations 100"]),
            ('n_nodes', ['2', '4', '8']), ('out_channels', ['2', '8', '16', '32']),
            ('kernel_size', ['3', '5']), ('init_mutations', ['0', '1000'])]
 

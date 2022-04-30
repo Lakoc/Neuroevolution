@@ -2,7 +2,7 @@
 #PBS -N Neuroevolution
 #PBS -q gpu
 #PBS -l select=1:ngpus=1:cl_adan=True:gpu_cap=cuda75:mem=6gb:scratch_local=1gb
-#PBS -l walltime=8:00:00
+#PBS -l walltime=12:00:00
 #PBS -J 1-96
 
 
