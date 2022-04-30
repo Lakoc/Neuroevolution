@@ -9,5 +9,5 @@ if __name__ == "__main__":
         prev_configs = all_configs.copy()
         all_configs = [f"{config} {f'--{key}' if key else ''} {value}" for value in values for config in prev_configs]
     for index, config in enumerate(all_configs):
-        with open(f'configs/config{index+1}', 'w') as f:
+        with open(f'configs/config{index+1}.txt', 'w') as f:
             f.write(f"{fixed_args}{config}")
