@@ -1,10 +1,10 @@
 #!/bin/bash
 #PBS -N Neuroevolution
 #PBS -q gpu
-#PBS -l select=1:ngpus=1:gpu_cap=cuda75:mem=8gb:scratch_local=1gb
-#PBS -l walltime=1:00:00
+#PBS -l select=1:ngpus=1:gpu_cap=cuda75:mem=6gb:scratch_local=1gb
+#PBS -l walltime=8:00:00
 #PBS -m abe
-#PBS -J 1-4
+#PBS -J 1-96
 
 
 # Clean up after exit

@@ -1,1 +1,0 @@
---population_size 2 --n_generations 2 --batch_size 256 --architecture Hierarchical --n_nodes 3,3,3;3,3,3;3 --out_channels 32 --kernel_size 5

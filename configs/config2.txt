@@ -1,1 +1,0 @@
---population_size 2 --n_generations 2 --batch_size 64 --architecture Flat --n_nodes 8 --out_channels 32 --kernel_size 5
