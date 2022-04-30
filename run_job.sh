@@ -51,7 +51,7 @@ python main.py $config
 
 echo "Training done. Copying back to FE: $(date +"%T")"
 # Copy data back to FE
-cp -r "$SCRATCHDIR/results" "$DATADIR/$PBS_ARRAY_INDEX" || {
+cp -r "$SCRATCHDIR/results" "$DATADIR/experiments/$PBS_ARRAY_INDEX" || {
   echo >&2 "Couldnt copy results to datadir."
   exit 3
 }
