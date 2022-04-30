@@ -4,7 +4,7 @@
 #PBS -l select=1:ngpus=1:gpu_cap=cuda75:mem=8gb:scratch_local=1gb
 #PBS -l walltime=1:00:00
 #PBS -m abe
-#PBS -J 1-3
+#PBS -J 1-4
 
 
 # Clean up after exit
