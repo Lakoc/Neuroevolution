@@ -11,4 +11,4 @@ create_dirs:
 
 .PHONY: clean
 clean:
-	rm best/* fitness/* macs/* models/* params/* results/*
+	rm results/best/* results/fitness/* results/macs/* results/models/* results/params/* configs/* results/*

@@ -6,7 +6,7 @@ from src.models import SimpleCNN
 import numpy as np
 
 if __name__ == '__main__':
-    dataset = FashionMNIST()
+    dataset = FashionMNIST(batch_size=64)
     logger = Logger('results', 'results.txt')
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     genotype_string = 'simple_cnn'
