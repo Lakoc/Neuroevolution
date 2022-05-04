@@ -4,7 +4,7 @@ options = [
     ('kernel_size', ['3', '5'])]
 
 if __name__ == "__main__":
-    fixed_args = "--search_alg GeneticSearch --architecture VariableLength --population_size 100 --n_generations 5 --n_epochs 2 --batch_size 32 --dataset FashionMNIST"
+    fixed_args = "--search_alg GeneticSearch --architecture VariableLength --population_size 50 --n_generations 10 --n_epochs 2 --batch_size 32 --dataset FashionMNIST"
     all_configs = ['']
     for key, values in options:
         prev_configs = all_configs.copy()
