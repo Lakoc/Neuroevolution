@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -N Neuroevolution Variable length
+#PBS -N Neuroevolution_variable_length
 #PBS -q gpu
 #PBS -l select=1:ngpus=1:cl_adan=True:gpu_cap=cuda75:mem=6gb:scratch_local=1gb
 #PBS -l walltime=12:00:00
