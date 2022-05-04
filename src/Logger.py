@@ -16,9 +16,10 @@ class Logger:
 
     @staticmethod
     def __train_logs(file, logs):
-        with open(file, 'w') as fp:
-            fp.write('Epoch\tIteration\tLoss\n')
-            fp.write('\n'.join(f'{epoch}\t\t{iteration}\t\t\t{loss:.3f}' for (epoch, iteration, loss) in logs) + '\n')
+        pass
+        # with open(file, 'w') as fp:
+        #     fp.write('Epoch\tIteration\tLoss\n')
+        #     fp.write('\n'.join(f'{epoch}\t\t{iteration}\t\t\t{loss:.3f}' for (epoch, iteration, loss) in logs) + '\n')
 
     def train_logs(self, genotype):
         return partial(self.__train_logs, os.path.join(self.folder, genotype))
