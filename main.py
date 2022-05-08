@@ -75,7 +75,7 @@ if __name__ == "__main__":
     dataset = getattr(datasets, args.dataset)(args.batch_size)
     search_alg = getattr(search, args.search_alg)
     architecture = getattr(individuals, args.architecture)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
     trainer = Trainer(dataset, device, optimizer=torch.optim.Adam, epochs=args.n_epochs)
     logger = Logger('results', 'results.txt')
 

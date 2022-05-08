@@ -1,5 +1,5 @@
 import os
-
+import scipy.stats as st
 import numpy as np
 
 import src.analysis.plots as plots
@@ -21,3 +21,28 @@ if __name__ == '__main__':
                                np.array(["Flat", "Variable length", "Hierarchical"]),
                                marker_types=pareto_optimal).savefig(
         'doc/all_individuals.pdf')
+
+    alpha = 0.05
+    classes = [best_individuals[best_individuals[:, -1] == i][:, 0] for i in range(3)]
+    p_s = np.array([st.normaltest(cls)[1] for cls in classes])
+    if np.all(p_s > alpha):
+        print('Normally distributed, t-test.')
+        _, p0 = st.ttest_ind(classes[0], classes[1])
+        _, p1 = st.ttest_ind(classes[0], classes[2])
+        _, p2 = st.ttest_ind(classes[1], classes[2])
+        for p in [p0, p1, p2]:
+            if (p > alpha):
+                print('The difference is NOT significant, the distributions MAY have the same mean value, p = ', p)
+            else:
+                print('The difference is significant, the distributions does not have the same mean value, p = ', p)
+
+    else:
+        print('Mann whitney test.')
+        t0, p0 = st.mannwhitneyu(classes[0], classes[1])
+        t1, p1 = st.mannwhitneyu(classes[0], classes[2])
+        t2, p2 = st.mannwhitneyu(classes[1], classes[2])
+        for p in [p0, p1, p2]:
+            if (p > alpha):
+                print('The difference is NOT significant, the distributions MAY have the same mean value, p = ', p)
+            else:
+                print('The difference is significant, the distributions does not have the same mean value, p = ', p)
