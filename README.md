@@ -50,7 +50,7 @@ Several arguments are provided, to list all with their descriptions run:
 python main.py -h 
 ```
 
-To automatically generate different program configurations for flat representation run:
+To automatically generate experiment configurations run one of files in configs folder:
 
 ```bash
 python configs/generate_configs_flat.py
