@@ -45,7 +45,7 @@ if __name__ == "__main__":
                         help='Number of initial mutations')
     parser.add_argument('--n_nodes', type=str,
                         default='5',
-                        help='Number of nodes for flat representation')
+                        help='Number of nodes for representation separated with , and ;')
 
     # Evolutionary search args
     parser.add_argument('--selection_pressure', type=float, default=0.05,

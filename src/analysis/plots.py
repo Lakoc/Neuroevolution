@@ -65,9 +65,9 @@ def histogram(outputs):
     plt.close()
 
 
-def boxplot(data, title, x_label, y_label, labels):
+def boxplot(data, title, x_label, y_label, boxplot_args):
     fig, ax = plt.subplots(1, 1, figsize=(7, 4))
-    ax.boxplot(data, labels=labels, notch=True)
+    ax.boxplot(data, **boxplot_args)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.set_xlabel(x_label)
@@ -83,7 +83,7 @@ def scatter_distribution(data, x_label, y_label, title, legend_labels, marker_ty
         if marker_types is not None:
             pareto = data[class_indexes & marker_types]
             others = data[class_indexes & ~marker_types]
-            ax.scatter(pareto[:, 0], pareto[:, 1], marker="x", label=legend_labels[cls])
+            ax.scatter(pareto[:, 0], pareto[:, 1], marker="x", label=f'Pareto optimal - {legend_labels[cls]}')
             ax.scatter(others[:, 0], others[:, 1], marker="o", label=legend_labels[cls])
         else:
             filtered = data[class_indexes]
