@@ -10,7 +10,7 @@ Evolving Deep Convolutional Neural Networks for Image Classification (Sun et
 al., [2020](https://doi.org/10.1109/TEVC.2019.2916183)).
 
 ![Autoencoder schema](doc/flat_architecture.pdf)
-<iframe width="100%" height="800" src="doc/flat_architecture.pdf">
+<embed src="doc/flat_architecture.pdf" type="application/pdf">
 
 Project focuses on analysis of several ways to encode Neural network architecture to the genotype. Random,
 evolutionary and genetic search algorithms are compared with Flat, Hierarchical and Variable length
