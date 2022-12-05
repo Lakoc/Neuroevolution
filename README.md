@@ -9,8 +9,11 @@ al., [2017](https://doi.org/10.48550/arXiv.1711.00436)) and
 Evolving Deep Convolutional Neural Networks for Image Classification (Sun et
 al., [2020](https://doi.org/10.1109/TEVC.2019.2916183)).
 
-![Autoencoder schema](doc/flat_architecture.pdf)
-<iframe width="100%" height="800" src="doc/flat_architecture.pdf">
+![Flat representation schema](doc/flat.png)
+*<div align="center"> Flat representation schema of NN construction from genotype. NN is constructed directly from a set of primitive operations.
+The image was adopted from [Hierarchical Representations for Efficient Architecture Search, Liu et
+al., 2017](https://doi.org/10.48550/arXiv.1711.00436). </div>*
+
 
 Project focuses on analysis of several ways to encode Neural network architecture to the genotype. Random,
 evolutionary and genetic search algorithms are compared with Flat, Hierarchical and Variable length
